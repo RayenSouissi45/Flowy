@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <p>Your role is: {{ session.get('role', 'User') }}</p>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Dashboard Overview</h5>
+            <p class="card-text">Here you can manage your settings, view reports, and more!</p>
+            <a href="#" class="btn btn-primary">Go to Settings</a>
+            <a href="#" class="btn btn-secondary">View Reports</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

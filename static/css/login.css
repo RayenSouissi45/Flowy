@@ -1,0 +1,89 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.login-container {
+    width: 800px;
+    height: 450px;
+    border-radius: 15px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.login-container2 {
+    width: 400px;
+    height: 500px;
+    padding-left: 60px;
+    padding-right: 60px;
+    padding-top: 20px;
+    border-radius: 15px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.login-form, .register-form {
+    width: 50%;
+    padding: 30px;
+}
+
+.login-form {
+    background-color: white;
+}
+
+.register-form {
+    background-color: white;
+    display: none; /* Hide by default */
+}
+
+.login-form h2, .register-form h2 {
+    margin-bottom: 30px;
+}
+
+.login-form .form-group,
+.register-form .form-group {
+    margin-bottom: 15px;
+}
+
+.login-side {
+    background-color: rgb(255, 125, 147);
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    color: white;
+    text-align: center;
+}
+
+.btn {
+    background-color: rgb(255, 125, 147);
+    color: white;
+}
+
+.login-side h2 {
+    margin-bottom: 20px;
+}
+
+.login-side p {
+    margin-bottom: 10px;
+}
+
+.login-side a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.login-side a:hover {
+    text-decoration: underline;
+}
+
+/* Additional styles for the register form */
+.register-form {
+    display: none; /* Initially hidden */
+}
