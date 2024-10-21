@@ -4,7 +4,7 @@ from models import db, User, Task, Project
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = "SS2#4Lm/rrP@pllsdaQ11108"
+app.secret_key = 'SS2#4Lm/rrP@pllsdaQ11108'
 
 # Database setup
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -82,49 +82,46 @@ with app.app_context():
         db.session.commit()
 
 
-
 # Route for login
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
         user = User.query.filter_by(username=username).first()
-
+        
         if user and check_password_hash(user.password_hash, password):
             session['username'] = username
             session['role'] = user.role
             session['image'] = user.image
             return redirect(url_for('dashboard'))
         else:
-            error = "Invalid credentials. Please try again."
-            return render_template("login.html", error=error)
-
-    return render_template("login.html")
-
+            error = 'Invalid credentials. Please try again.'
+            return render_template('login.html', error=error)
+    
+    return render_template('login.html')
 
 # Route for register
-@app.route("/register", methods=["GET", "POST"])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        role = request.form["role"]
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        role = request.form['role']
 
         hashed_password = generate_password_hash(password)
-
+        
         new_user = User(username=username, password_hash=hashed_password, role=role)
         db.session.add(new_user)
         db.session.commit()
+        
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
 
-        return redirect(url_for("login"))
-
-    return render_template("register.html")
-
-
-# Route for dashboard
-@app.route("/dashboard")
+# Route for dashboard 
+@app.route('/dashboard')
 def dashboard():
     if 'username' in session:
         user_role = session.get('role')
@@ -134,8 +131,7 @@ def dashboard():
         else:
             return render_template('user_dashboard.html', tasks=tasks)
     else:
-        return redirect(url_for("login"))
-
+        return redirect(url_for('login'))
 
 @app.route('/backlog')
 def backlog():
@@ -144,19 +140,19 @@ def backlog():
     return render_template('backlog.html', tasks=tasks, projects=projects)
 
 # Route for logout
-@app.route("/logout")
+@app.route('/logout')
 def logout():
     session.clear()
-    session.pop("username", None)
-    session.pop("role", None)
-    return redirect(url_for("login"))
-
+    session.pop('username', None)
+    session.pop('role', None)
+    return redirect(url_for('login'))
 
 # Login as home page
 @app.route('/')
 def home():
-    return redirect(url_for("login"))
+    return redirect(url_for('login'))
 
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     app.run(debug=True)
