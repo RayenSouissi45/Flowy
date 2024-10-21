@@ -1,9 +1,130 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
-
 {% block content %}
-<div class="dashboard-container">
- 
+<div class="container mt-4">
+    <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">My Tasks Overview</h1>
+    <div class="d-flex align-items-center mb-4">
+        <span class="badge badge-success rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0 mr-4">Completed</p>
+        
+        <span class="badge badge-danger rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0 mr-4">Blocked</p>
+        
+        <span class="badge badge-warning rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0">On Development</p>
+    </div>
+    
+    
+    <div class="row">
+        {% for task in tasks %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-card"
+                style="position: relative; overflow: hidden; background-color: rgb(207, 207, 207); border-radius: 10px; cursor: pointer;"
+                data-toggle="modal" data-target="#taskModal" 
+                data-title="{{ task.title }}"
+                data-difficulty="{{ task.difficulty }}"
+                data-start-date="{{ task.start_date }}"
+                data-end-date="{{ task.end_date }}"
+                data-status="{{ task.status }}"
+                data-image-url="{{ task.image_url }}"
+                data-description="{{ task.description }}"
+                data-username="{{ task.username }}"
+                onclick="showTaskDetails(this)">
+                
+                <div class="d-flex align-items-start p-3">
+                    <img src="{{ task.image_url }}" alt="Task Image" class="rounded-circle" width="50" height="50">
+                    <div class="ml-3">
+                        <h5 class="card-title mb-1">{{ task.title }}</h5>
+                        <p class="text-muted mb-1">Difficulty: {{ task.difficulty }}</p>
+                    </div>
+                </div>
+                <div style="position: absolute; top: 10px; right: 6px;">
+                    {% if task.status == 'Completed' %}
+                    <span class="badge badge-success rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% elif task.status == 'Blocked' %}
+                    <span class="badge badge-danger rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% elif task.status == 'OnDevelopment' %}
+                    <span class="badge badge-warning rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% endif %}
+                </div>
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1"><strong>Start Date:</strong> {{ task.start_date }}</p>
+                            <p class="mb-1"><strong>End Date:</strong> {{ task.end_date }}</p>
+                        </div>
+                        <img src="../static/images/calendar.png" class="calendar">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">Activity feed</h1>
+    <section style="height: 200px;background-color: #333;margin-bottom: 80px;border-radius: 10px;padding: 20px;">
+        <div style="background-color: #f8f9fa;border-radius: 10px;height: 160px;">
+
+        </div>
+    </section>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 800px;">
+        <div class="modal-content" style="border-radius: 10px; overflow: hidden;">
+            <div class="modal-header" style="background-color: #a9a9a9; color: white;">
+                <h5 class="modal-title" id="taskModalLabel">Task Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 20px; background-color: #f8f9fa;">
+                <div class="d-flex align-items-start">
+                    <img id="modalTaskImage" src="" alt="Task Image" class="rounded-circle mb-3" width="100" height="100">
+                    <div class="ml-3">
+                        <h5 id="modalTaskTitle" style="font-weight: bold;"></h5>
+                        <p><strong>Difficulty:</strong> <span id="modalTaskDifficulty"></span></p>
+                    </div>
+                    <div class="ml-auto">
+                        <p><strong>Status:</strong> <span id="modalTaskStatus"></span></p>
+                    </div>
+                </div>
+                <p><strong>Username : </strong> <span id="modalTaskUsername"></span></p>
+                <p><strong>Start Date:</strong> <span id="modalTaskStartDate"></span></p>
+                <p><strong>End Date:</strong> <span id="modalTaskEndDate"></span></p>
+                <p><strong>Description:</strong></p>
+                <p id="modalTaskDescription" style="line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer" style="background-color: #f1f1f1;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 5px;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+function showTaskDetails(card) {
+    const title = card.getAttribute('data-title');
+    const difficulty = card.getAttribute('data-difficulty');
+    const startDate = card.getAttribute('data-start-date');
+    const endDate = card.getAttribute('data-end-date');
+    const status = card.getAttribute('data-status');
+    const imageUrl = card.getAttribute('data-image-url');
+    const description = card.getAttribute('data-description');
+    const username = card.getAttribute('data-username');
+
+    document.getElementById('modalTaskTitle').innerText = title;
+    document.getElementById('modalTaskDifficulty').innerText = difficulty;
+    document.getElementById('modalTaskStatus').innerText = status;
+    document.getElementById('modalTaskStartDate').innerText = startDate;
+    document.getElementById('modalTaskEndDate').innerText = endDate;
+    document.getElementById('modalTaskImage').src = imageUrl;
+    document.getElementById('modalTaskDescription').innerText = description;
+    document.getElementById('modalTaskUsername').innerText = username;
+}
+</script>
+
 {% endblock %}

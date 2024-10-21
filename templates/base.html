@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your App Title{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/cards.css">
 </head>
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
         <a class="navbar-brand" href="{{ url_for('home') }}">Capibara</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,13 +22,45 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                </li>
             </ul>
+            
+            <!-- profile icon  -->
+            <ul class="navbar-nav ml-auto align-items-center"></ul>
+                <img src="{{ session.get('image') }}" class="rounded-circle profile" width="40" height="40" style="margin-right: 10px;" onclick="toggleMenu ()">
+            </ul>
+            <div class="sub-menu-wrap"id="subMenu">
+                <div class="sub-menu">
+                    <div class="user-info">
+                        <img src="{{ session.get('image') }}"class="rounded-circle profile" width="40" height="40" style="margin-right: 10px;" >
+                        <h2>{{session.username}}</h2>
+                    </div>
+                    <hr>
+                    <a href="#" class="sub-menu-link">
+                        <img src="/static/images/profile.png">
+                        <p>Edit profile</p>
+                        <span>></span>
+                    </a>
+                    <a href="#" class="sub-menu-link">
+                        <img src="/static/images/setting.png">
+                        <p>Settings</p>
+                        <span>></span>
+                    </a>
+                    <a href="#" class="sub-menu-link">
+                        <img src="/static/images/help.png">
+                        <p>Help</p>
+                        <span>></span>
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="sub-menu-link">
+                        <img src="/static/images/logout.png">
+                        <p>Logout</p>
+                        <span>></span>
+                    </a>
+                </div>
+            </div>
+
+            
         </div>
     </nav>
-
 
     <div class="container mt-4">
         {% with messages = get_flashed_messages() %}
@@ -47,6 +80,15 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let subMenu = document.getElementById("subMenu");
+
+        function toggleMenu(){
+            subMenu.classList.toggle("open-menu");
+        }
+    </script>
 </body>
 
 </html>
