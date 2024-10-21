@@ -83,7 +83,4 @@ body {
     text-decoration: underline;
 }
 
-/* Additional styles for the register form */
-.register-form {
-    display: none; /* Initially hidden */
-}
+
