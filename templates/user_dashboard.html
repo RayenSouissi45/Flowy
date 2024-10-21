@@ -29,6 +29,7 @@
                 data-image-url="{{ task.image_url }}"
                 data-description="{{ task.description }}"
                 data-username="{{ task.username }}"
+                data-project="{{ task.project.name }}"  
                 onclick="showTaskDetails(this)">
                 
                 <div class="d-flex align-items-start p-3">
@@ -84,7 +85,8 @@
                     <img id="modalTaskImage" src="" alt="Task Image" class="rounded-circle mb-3" width="100" height="100">
                     <div class="ml-3">
                         <h5 id="modalTaskTitle" style="font-weight: bold;"></h5>
-                        <p><strong>Difficulty:</strong> <span id="modalTaskDifficulty"></span></p>
+                        <p><strong>Difficulty :</strong> <span id="modalTaskDifficulty"></span></p>
+                        <p><strong>Project :</strong> <span id="modalTaskProject"></span></p>
                     </div>
                     <div class="ml-auto">
                         <p><strong>Status:</strong> <span id="modalTaskStatus"></span></p>
@@ -115,6 +117,7 @@ function showTaskDetails(card) {
     const imageUrl = card.getAttribute('data-image-url');
     const description = card.getAttribute('data-description');
     const username = card.getAttribute('data-username');
+    const project = card.getAttribute('data-project');
 
     document.getElementById('modalTaskTitle').innerText = title;
     document.getElementById('modalTaskDifficulty').innerText = difficulty;
@@ -124,6 +127,7 @@ function showTaskDetails(card) {
     document.getElementById('modalTaskImage').src = imageUrl;
     document.getElementById('modalTaskDescription').innerText = description;
     document.getElementById('modalTaskUsername').innerText = username;
+    document.getElementById('modalTaskProject').innerText = project;
 }
 </script>
 

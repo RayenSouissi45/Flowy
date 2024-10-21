@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from models import db, User, Task, Project
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -7,58 +8,79 @@ app.secret_key = 'SS2#4Lm/rrP@pllsdaQ11108'
 
 # Database setup
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-db = SQLAlchemy(app)
 
-# User model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False, unique=True)
-    password_hash = db.Column(db.String(150), nullable=False)
-    image = db.Column(db.String(150), nullable=True)
-    role = db.Column(db.String(50), default='user')
+
+
+db.init_app(app)
 
 with app.app_context():
     db.create_all()
-# Task model
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    difficulty = db.Column(db.String(200), nullable=True)
-    start_date = db.Column(db.String(50), nullable=False)
-    end_date = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    image_url = db.Column(db.String(255), nullable=True)
-    status = db.Column(db.String(50), default='InDevelopment')
-    username = db.Column(db.String(100), nullable=False)
+    
 
+# Add new project and tasks
 with app.app_context():
-    db.create_all()
+    if Project.query.count() == 0:
+        project = Project(name='Project 1')
+        db.session.add(project)
+        db.session.commit()
 
-# Add tasks
-with app.app_context():
-    if Task.query.count() == 2:
+        project_id = project.id
+
         task1 = Task(
-            title='Task 3',
+            title='Task 1',
             difficulty='hard',
             start_date='2024-10-01 12:00',
             end_date='2024-10-20 18:30',
             description='This is the description for Task 1.',
             image_url='https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg',
             status='OnDevelopment',
-            username='aziz'
+            username='Aziz Bjaoui',
+            importance='6',
+            estimated_time='24',
+            project_id=project_id
         )
         task2 = Task(
+            title='Task 2',
+            difficulty='normal',
+            start_date='2024-10-01 12:00',
+            end_date='2024-10-20 18:30',
+            description='This is the description for Task 2.',
+            image_url='https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg',
+            status='Blocked',
+            username='Aziz Bjaoui',
+            importance='1',
+            estimated_time='60',
+            project_id=project_id
+        )
+        task3 = Task(
+            title='Task 3',
+            difficulty='normal',
+            start_date='2024-10-01 12:00',
+            end_date='2024-10-20 18:30',
+            description='This is the description for Task 2.',
+            image_url='https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg',
+            status='Blocked',
+            username='Aziz Bjaoui',
+            importance='2',
+            estimated_time='3',
+            project_id=project_id
+        )
+        task4 = Task(
             title='Task 4',
             difficulty='normal',
             start_date='2024-10-01 12:00',
             end_date='2024-10-20 18:30',
-            description='This is the description for Task 1.',
+            description='This is the description for Task 2.',
             image_url='https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg',
             status='Blocked',
-            username='aziz'
+            username='Aziz Bjaoui',
+            importance='4',
+            estimated_time='14',
+            project_id=project_id
         )
-        db.session.add_all([task1, task2])
+        db.session.add_all([task1, task2, task3, task4])
         db.session.commit()
+
 
 # Route for login
 @app.route('/login', methods=['GET', 'POST'])
@@ -111,6 +133,11 @@ def dashboard():
     else:
         return redirect(url_for('login'))
 
+@app.route('/backlog')
+def backlog():
+    tasks = Task.query.all()
+    projects = Project.query.all()
+    return render_template('backlog.html', tasks=tasks, projects=projects)
 
 # Route for logout
 @app.route('/logout')

@@ -136,7 +136,7 @@ a:hover {
     transform: scale(1.1);
     cursor: pointer;
 }
-@media (max-width: 768px) {
+@media (max-width: 995px) {
     .sub-menu-wrap {
         right: auto; /* Reset right property */
         left: 0; /* Align it to the left */
