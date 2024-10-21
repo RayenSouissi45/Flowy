@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; color: #343a40; }
-        .navbar { background-color: #343a40; padding: 1em; color: white; text-align: center; }
-        .navbar a { color: white; text-decoration: none; padding: 0 15px; }
-
+{% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
     <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">My Tasks Overview</h1>
@@ -41,7 +30,7 @@
                 data-username="{{ task.username }}"
                 data-project="{{ task.project.name }}"  
                 onclick="showTaskDetails(this)">
-                
+
                 <div class="d-flex align-items-start p-3">
                     <img src="{{ task.image_url }}" alt="Task Image" class="rounded-circle" width="50" height="50">
                     <div class="ml-3">
@@ -71,15 +60,12 @@
         </div>
         {% endfor %}
     </div>
-
     <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">Activity feed</h1>
     <section style="height: 200px;background-color: #333;margin-bottom: 80px;border-radius: 10px;padding: 20px;">
         <div style="background-color: #f8f9fa;border-radius: 10px;height: 160px;">
-
         </div>
     </section>
 </div>
-
 <!-- Modal -->
 <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document" style="max-width: 800px;">
@@ -114,9 +100,6 @@
         </div>
     </div>
 </div>
-
-
-
 <script>
 function showTaskDetails(card) {
     const title = card.getAttribute('data-title');
