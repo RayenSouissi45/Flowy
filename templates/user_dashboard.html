@@ -1,9 +1,220 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; color: #343a40; }
+        .navbar { background-color: #343a40; padding: 1em; color: white; text-align: center; }
+        .navbar a { color: white; text-decoration: none; padding: 0 15px; }
 
-{% block title %}Dashboard{% endblock %}
+        .dashboard-container { display: flex; justify-content: center; flex-wrap: wrap; margin: 20px; }
+        .chart-container { position: relative; width: 250px; height: 250px; margin: 50px; }
+        .chart-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
+        .project-title { text-align: center; font-size: 18px; margin-top: 10px; font-weight: bold; }
+        .view-project-btn { display: block; margin: 10px auto; padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 14px; border-radius: 5px; }
+        .view-project-btn:hover { background-color: #0056b3; }
 
-{% block content %}
-<div class="dashboard-container">
- 
-</div>
-{% endblock %}
+        .team-progress { margin: 50px auto; text-align: left; width: 80%; max-width: 800px; }
+        .team-member-container { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ccc; }
+        .member-name { font-size: 16px; font-weight: bold; width: 150px; }
+        .progress-wrapper { flex-grow: 1; margin-left: 20px; }
+        .progress-bar-wrapper { position: relative; height: 20px; background-color: #e9ecef; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #00c0ef; border-radius: 10px 0 0 10px; }
+        .issue-bar { height: 100%; background-color: #f56c6c; position: absolute; top: 0; right: 0; border-radius: 0 10px 10px 0; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 14px; margin-top: 5px; }
+
+        select { padding: 10px; font-size: 16px; margin-bottom: 20px; }
+
+        .legend { margin-top: 20px; font-size: 14px; text-align: center; }
+        .legend div { display: inline-block; margin: 0 10px; }
+        .legend-color { width: 20px; height: 20px; display: inline-block; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <div class="navbar">
+        <a href="#">Home</a>
+        <a href="#">Settings</a>
+        <a href="#">Reports</a>
+    </div>
+
+    <!-- Project Display -->
+    <div class="dashboard-container">
+        <div class="chart-container" id="project1Container">
+            <canvas id="project1Chart"></canvas>
+            <div class="chart-text" id="project1Text">60%</div>
+            <div class="project-title">Project 1</div>
+            <button class="view-project-btn">View Project</button>
+        </div>
+        <div class="chart-container" id="project2Container">
+            <canvas id="project2Chart"></canvas>
+            <div class="chart-text" id="project2Text">60%</div>
+            <div class="project-title">Project 2</div>
+            <button class="view-project-btn">View Project</button>
+        </div>
+        <div class="chart-container" id="project3Container">
+            <canvas id="project3Chart"></canvas>
+            <div class="chart-text" id="project3Text">60%</div>
+            <div class="project-title">Project 3</div>
+            <button class="view-project-btn">View Project</button>
+        </div>
+    </div>
+
+    <!-- Project Select Dropdown -->
+    <div class="team-progress">
+        <select id="projectSelect" class="project-select">
+            <option value="Project 1" selected>Project 1</option>
+            <option value="Project 2">Project 2</option>
+            <option value="Project 3">Project 3</option>
+        </select>
+    </div>
+
+    <!-- Team Progress Overview -->
+    <div class="team-progress">
+        <h2>Team Progress Overview</h2>
+        <div id="teamMembers"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div><span class="legend-color" style="background-color: #00c0ef;"></span> Progress</div>
+        <div><span class="legend-color" style="background-color: #f56c6c;"></span> Issues</div>
+    </div>
+
+    <script>
+        // Fake data for team members
+        const teamData = {
+            'Project 1': [
+                { name: 'Alex', progress: 20, issues: 10 },
+                { name: 'David', progress: 30, issues: 20 },
+                { name: 'Mark', progress: 40, issues: 5 },
+                { name: 'Michael', progress: 10, issues: 0 }
+            ],
+            'Project 2': [
+                { name: 'Chris', progress: 50, issues: 10 },
+                { name: 'David', progress: 35, issues: 25 },
+                { name: 'Mark', progress: 40, issues: 15 },
+                { name: 'Sarah', progress: 45, issues: 5 }
+            ],
+            'Project 3': [
+                { name: 'Alex', progress: 60, issues: 15 },
+                { name: 'John', progress: 50, issues: 5 },
+                { name: 'Mark', progress: 30, issues: 10 },
+                { name: 'Sarah', progress: 25, issues: 20 }
+            ]
+        };
+
+        // Function to create a progress bar for each team member
+        function renderTeamMembers(project) {
+            const teamMembersDiv = document.getElementById('teamMembers');
+            teamMembersDiv.innerHTML = ''; // Clear previous data
+
+            teamData[project].forEach(member => {
+                const memberContainer = document.createElement('div');
+                memberContainer.classList.add('team-member-container');
+
+                // Member Name
+                const nameDiv = document.createElement('div');
+                nameDiv.classList.add('member-name');
+                nameDiv.textContent = member.name;
+
+                // Progress Bar Wrapper
+                const progressWrapper = document.createElement('div');
+                progressWrapper.classList.add('progress-wrapper');
+
+                // Progress Bar
+                const progressBarWrapper = document.createElement('div');
+                progressBarWrapper.classList.add('progress-bar-wrapper');
+
+                const progressBar = document.createElement('div');
+                progressBar.classList.add('progress-bar');
+                progressBar.style.width = `${member.progress}%`;
+
+                const issueBar = document.createElement('div');
+                issueBar.classList.add('issue-bar');
+                issueBar.style.width = `${member.issues}%`;
+
+                progressBarWrapper.appendChild(progressBar);
+                progressBarWrapper.appendChild(issueBar);
+
+                // Progress Info (numbers)
+                const progressInfo = document.createElement('div');
+                progressInfo.classList.add('progress-info');
+                progressInfo.innerHTML = `
+                    <span>Progress: ${member.progress}%</span>
+                    <span>Issues: ${member.issues}%</span>
+                `;
+
+                // Append all elements to their containers
+                progressWrapper.appendChild(progressBarWrapper);
+                progressWrapper.appendChild(progressInfo);
+                memberContainer.appendChild(nameDiv);
+                memberContainer.appendChild(progressWrapper);
+
+                // Append the member container to the main team member section
+                teamMembersDiv.appendChild(memberContainer);
+            });
+        }
+
+        // Initial rendering for the first project
+        renderTeamMembers('Project 1');
+
+        // Update team members when a new project is selected
+        document.getElementById('projectSelect').addEventListener('change', function() {
+            const selectedProject = this.value;
+            renderTeamMembers(selectedProject);
+            updateCharts(selectedProject);
+        });
+
+        // Circular chart function
+        function createCircularChart(ctx, percentage, isSelected = false) {
+            const blueColor = isSelected ? '#0056b3' : '#00c0ef';
+            const grayColor = isSelected ? '#a9a9a9' : '#d3d3d3';
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [percentage, 100 - percentage],
+                        backgroundColor: [blueColor, grayColor],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: { enabled: false },
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Initialize charts
+        const projectData = [
+            { id: 'project1Chart', percentage: 60 },
+            { id: 'project2Chart', percentage: 60 },
+            { id: 'project3Chart', percentage: 60 }
+        ];
+
+        const charts = projectData.map(project => {
+            const ctx = document.getElementById(project.id).getContext('2d');
+            return createCircularChart(ctx, project.percentage);
+        });
+
+        // Update chart colors on project selection
+        function updateCharts(selectedProject) {
+            projectData.forEach((project, index) => {
+                const isSelected = project.id.includes(selectedProject.replace(' ', '').toLowerCase());
+                charts[index].destroy();
+                const ctx = document.getElementById(project.id).getContext('2d');
+                charts[index] = createCircularChart(ctx, project.percentage, isSelected);
+            });
+        }
+    </script>
+</body>
+</html>
