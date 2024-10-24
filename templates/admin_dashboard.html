@@ -75,45 +75,51 @@
             projectSelect.innerHTML = ''; // Clear previous options
     
             projects.forEach((project, index) => {
-                // Create project chart container dynamically
-                const chartContainer = document.createElement('div');
-                chartContainer.classList.add('chart-container');
-                chartContainer.id = `project${index + 1}Container`;
-    
-                const canvas = document.createElement('canvas');
-                canvas.id = `project${index + 1}Chart`;
-    
-                const chartText = document.createElement('div');
-                chartText.classList.add('chart-text');
-                chartText.id = `project${index + 1}Text`;
-                chartText.textContent = `${project.progress}%`;
-    
-                const projectTitle = document.createElement('div');
-                projectTitle.classList.add('project-title');
-                projectTitle.textContent = project.name;
-    
-                const viewButton = document.createElement('button');
-                viewButton.classList.add('view-project-btn');
-                viewButton.textContent = 'View Project';
-    
-                chartContainer.appendChild(canvas);
-                chartContainer.appendChild(chartText);
-                chartContainer.appendChild(projectTitle);
-                chartContainer.appendChild(viewButton);
-    
-                // Append to dashboard container
-                dashboardContainer.appendChild(chartContainer);
-    
-                // Create chart for the project
-                const ctx = document.getElementById(`project${index + 1}Chart`).getContext('2d');
-                createCircularChart(ctx, project.progress);
-    
-                // Create option in project select dropdown
-                const option = document.createElement('option');
-                option.value = project.id; // Use project ID as the value
-                option.textContent = project.name;
-                projectSelect.appendChild(option);
-            });
+    // Create project chart container dynamically
+    const chartContainer = document.createElement('div');
+    chartContainer.classList.add('chart-container');
+    chartContainer.id = `project${index + 1}Container`;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = `project${index + 1}Chart`;
+
+    const chartText = document.createElement('div');
+    chartText.classList.add('chart-text');
+    chartText.id = `project${index + 1}Text`;
+    chartText.textContent = `${project.progress}%`;
+
+    const projectTitle = document.createElement('div');
+    projectTitle.classList.add('project-title');
+    projectTitle.textContent = project.name;
+
+    const viewButton = document.createElement('button');
+    viewButton.classList.add('view-project-btn');
+    viewButton.textContent = 'View Project';
+
+    // Update this part to pass the specific project ID when the button is clicked
+    viewButton.addEventListener('click', function() {
+        const selectedProjectId = project.id;  // Use the specific project ID
+        window.location.href = `/project/${selectedProjectId}`;
+    });
+
+    chartContainer.appendChild(canvas);
+    chartContainer.appendChild(chartText);
+    chartContainer.appendChild(projectTitle);
+    chartContainer.appendChild(viewButton);
+
+    // Append to dashboard container
+    dashboardContainer.appendChild(chartContainer);
+
+    // Create chart for the project
+    const ctx = document.getElementById(`project${index + 1}Chart`).getContext('2d');
+    createCircularChart(ctx, project.progress);
+
+    // Create option in project select dropdown
+    const option = document.createElement('option');
+    option.value = project.id; // Use project ID as the value
+    option.textContent = project.name;
+    projectSelect.appendChild(option);
+});
         }
     
         // Function to create circular chart

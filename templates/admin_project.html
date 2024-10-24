@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Progress Tracking</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .charts {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .chart {
+            width: 48%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart h2 {
+            margin-bottom: 20px;
+        }
+        .chart canvas {
+            margin-top: auto;
+            margin-bottom: auto;
+            max-width: 100%;
+            height: 400px;
+        }
+        .dropdown {
+            background-color: #e0e0e0;
+            padding: 10px;
+            margin: 20px auto;
+            text-align: center;
+            width: fit-content;
+            font-size: 1.5rem;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Progress Tracking</h1>
+        <div class="dropdown">
+            <span>Project: <span id="projectName">Loading...</span></span>
+        </div>
+        
+        <div class="charts">
+            <!-- Task Distribution by Status -->
+            <div class="chart">
+                <h2>Task Distribution by Status</h2>
+                <canvas id="taskStatusChart"></canvas>
+            </div>
+
+            <!-- Progress Comparison: Actual vs Planned -->
+            <div class="chart">
+                <h2>Progress Comparison: Actual vs Planned</h2>
+                <canvas id="progressComparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch project data from the API
+        function fetchProjectData(projectId) {
+            fetch(`/projects/${projectId}`)
+                .then(response => response.json())
+                .then(project => {
+                    document.getElementById("projectName").textContent = project.name;
+
+                    // Create charts with the project data
+                    createTaskStatusChart(project);
+                    createProgressComparisonChart(project);
+                })
+                .catch(error => console.error('Error fetching project data:', error));
+        }
+
+        // Pie chart for Task Distribution by Status
+        function createTaskStatusChart(project) {
+            const taskCounts = [
+                project.to_do_tasks,
+                project.completed_tasks,
+                project.on_development_tasks,
+                project.blocked_tasks
+            ];
+
+            const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+            new Chart(taskStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['To Do Tasks', 'Completed Tasks', 'On Development Tasks', 'Blocked Tasks'],
+                    datasets: [{
+                        data: taskCounts,
+                        backgroundColor: ['#f9d835', '#4caf50', '#2196f3', '#f44336'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Horizontal bar chart for Progress Comparison
+        function createProgressComparisonChart(project) {
+            const progressComparisonCtx = document.getElementById('progressComparisonChart').getContext('2d');
+            new Chart(progressComparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Actual Work Done', 'Actual Work Remaining'],
+                    datasets: [
+                        {
+                            label: 'Actual Progress',
+                            data: [project.actual_work_done, project.actual_work_remaining],
+                            backgroundColor: '#2196f3'
+                        },
+                        {
+                            label: 'Planned Progress',
+                            data: [project.planned_work_done, project.planned_work_remaining],
+                            backgroundColor: '#9e9e9e'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',  // Horizontal bar chart
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Call the function to fetch project data
+        const projectId = 1;  // You can dynamically pass this from the URL or backend
+        fetchProjectData(projectId);
+    </script>
+</body>
+</html>
