@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Task, Project
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -131,6 +131,54 @@ def register():
         return redirect(url_for("login"))
 
     return render_template("register.html")
+
+
+# Define a route to handle the project page based on projectId
+@app.route("/project/<int:projectId>")
+def project_dashboard(projectId):
+    # Mock project data
+    project = {
+        "name": "Website Redesignz",
+        "client": "Synernova Digital Agency",
+        "progress": 10,
+        "tasks": [
+            {
+                "name": "Design Mockups",
+                "status": "On Development",
+                "start": "2024-10-01",
+                "end": "2024-10-15",
+            },
+            {
+                "name": "Implement Backend",
+                "status": "Blocked",
+                "start": "2024-10-05",
+                "end": "2024-10-20",
+            },
+            {
+                "name": "Test Application",
+                "status": "Pending",
+                "start": "2024-10-10",
+                "end": "2024-10-25",
+            },
+        ],
+    }
+
+    # Check if the user is logged in
+    if "username" not in session:
+        flash("Please log in to access the project dashboard", "error")
+        return redirect(url_for("login"))
+
+    # Get the user's role
+    user_role = session.get("role")
+
+    # Check if the user is an admin
+    if user_role == "admin":
+        return render_template(
+            "admin_project.html", projectId=projectId, project=project
+        )
+    else:
+        flash("You don't have permission to view this page", "warning")
+        return redirect(url_for("dashboard"))  # Redirect non-admins to their dashboard
 
 
 # Route for dashboard

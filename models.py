@@ -87,6 +87,14 @@ class Project(db.Model):
     name = db.Column(db.String(150), nullable=False)
     client_name = db.Column(db.String(150), nullable=False)
     progress = db.Column(db.Integer, nullable=False)
+    to_do_tasks = db.Column(db.Integer, nullable=False)
+    on_development_tasks = db.Column(db.Integer, nullable=False)
+    completed_tasks = db.Column(db.Integer, nullable=False)
+    blocked_tasks = db.Column(db.Integer, nullable=False)
+    actual_work_done = db.Column(db.Integer, nullable=False)
+    acutal_work_remaning = db.Column(db.Integer, nullable=False)
+    planned_work_done = db.Column(db.Integer, nullable=False)
+    planned_work_remaning = db.Column(db.Integer, nullable=False)
 
     # Establish the relationship with TeamMember (without an intermediate Team model)
     project_members = db.relationship("TeamMember", back_populates="project")
@@ -97,6 +105,14 @@ class Project(db.Model):
             "name": self.name,
             "client_name": self.client_name,
             "progress": self.progress,
+            "to_do_tasks": self.to_do_tasks,
+            "on_development_tasks": self.on_development_tasks,
+            "completed_tasks": self.completed_tasks,
+            "blocked_tasks": self.blocked_tasks,
+            "actual_work_done": self.actual_work_done,
+            "actual_work_remaining": self.acutal_work_remaning,
+            "planned_work_done": self.planned_work_done,
+            "planned_work_remaining": self.planned_work_remaning,
         }
 
 
