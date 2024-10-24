@@ -1,220 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; color: #343a40; }
-        .navbar { background-color: #343a40; padding: 1em; color: white; text-align: center; }
-        .navbar a { color: white; text-decoration: none; padding: 0 15px; }
-
-        .dashboard-container { display: flex; justify-content: center; flex-wrap: wrap; margin: 20px; }
-        .chart-container { position: relative; width: 250px; height: 250px; margin: 50px; }
-        .chart-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
-        .project-title { text-align: center; font-size: 18px; margin-top: 10px; font-weight: bold; }
-        .view-project-btn { display: block; margin: 10px auto; padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 14px; border-radius: 5px; }
-        .view-project-btn:hover { background-color: #0056b3; }
-
-        .team-progress { margin: 50px auto; text-align: left; width: 80%; max-width: 800px; }
-        .team-member-container { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ccc; }
-        .member-name { font-size: 16px; font-weight: bold; width: 150px; }
-        .progress-wrapper { flex-grow: 1; margin-left: 20px; }
-        .progress-bar-wrapper { position: relative; height: 20px; background-color: #e9ecef; border-radius: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background-color: #00c0ef; border-radius: 10px 0 0 10px; }
-        .issue-bar { height: 100%; background-color: #f56c6c; position: absolute; top: 0; right: 0; border-radius: 0 10px 10px 0; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 14px; margin-top: 5px; }
-
-        select { padding: 10px; font-size: 16px; margin-bottom: 20px; }
-
-        .legend { margin-top: 20px; font-size: 14px; text-align: center; }
-        .legend div { display: inline-block; margin: 0 10px; }
-        .legend-color { width: 20px; height: 20px; display: inline-block; margin-right: 5px; }
-    </style>
-</head>
-<body>
-    <!-- Navbar Section -->
-    <div class="navbar">
-        <a href="#">Home</a>
-        <a href="#">Settings</a>
-        <a href="#">Reports</a>
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">My Tasks Overview</h1>
+    <div class="d-flex align-items-center mb-4">
+        <span class="badge badge-success rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0 mr-4">Completed</p>
+        
+        <span class="badge badge-danger rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0 mr-4">Blocked</p>
+        
+        <span class="badge badge-warning rounded-circle p-2 task-status-badge mr-2">&nbsp;</span>
+        <p class="mb-0">On Development</p>
     </div>
+    
+    
+    <div class="row">
+        {% for task in tasks %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-card"
+                style="position: relative; overflow: hidden; background-color: rgb(207, 207, 207); border-radius: 10px; cursor: pointer;"
+                data-toggle="modal" data-target="#taskModal" 
+                data-title="{{ task.title }}"
+                data-difficulty="{{ task.difficulty }}"
+                data-start-date="{{ task.start_date }}"
+                data-end-date="{{ task.end_date }}"
+                data-status="{{ task.status }}"
+                data-image-url="{{ task.image_url }}"
+                data-description="{{ task.description }}"
+                data-username="{{ task.username }}"
+                data-project="{{ task.project.name }}"  
+                onclick="showTaskDetails(this)">
 
-    <!-- Project Display -->
-    <div class="dashboard-container">
-        <div class="chart-container" id="project1Container">
-            <canvas id="project1Chart"></canvas>
-            <div class="chart-text" id="project1Text">60%</div>
-            <div class="project-title">Project 1</div>
-            <button class="view-project-btn">View Project</button>
+                <div class="d-flex align-items-start p-3">
+                    <img src="{{ task.image_url }}" alt="Task Image" class="rounded-circle" width="50" height="50">
+                    <div class="ml-3">
+                        <h5 class="card-title mb-1">{{ task.title }}</h5>
+                        <p class="text-muted mb-1">Difficulty: {{ task.difficulty }}</p>
+                    </div>
+                </div>
+                <div style="position: absolute; top: 10px; right: 6px;">
+                    {% if task.status == 'Completed' %}
+                    <span class="badge badge-success rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% elif task.status == 'Blocked' %}
+                    <span class="badge badge-danger rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% elif task.status == 'OnDevelopment' %}
+                    <span class="badge badge-warning rounded-circle p-2 task-status-badge">&nbsp;</span>
+                    {% endif %}
+                </div>
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1"><strong>Start Date:</strong> {{ task.start_date }}</p>
+                            <p class="mb-1"><strong>End Date:</strong> {{ task.end_date }}</p>
+                        </div>
+                        <img src="../static/images/calendar.png" class="calendar">
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="chart-container" id="project2Container">
-            <canvas id="project2Chart"></canvas>
-            <div class="chart-text" id="project2Text">60%</div>
-            <div class="project-title">Project 2</div>
-            <button class="view-project-btn">View Project</button>
+        {% endfor %}
+    </div>
+    <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">Activity feed</h1>
+    <section style="height: 200px;background-color: #333;margin-bottom: 80px;border-radius: 10px;padding: 20px;">
+        <div style="background-color: #f8f9fa;border-radius: 10px;height: 160px;">
         </div>
-        <div class="chart-container" id="project3Container">
-            <canvas id="project3Chart"></canvas>
-            <div class="chart-text" id="project3Text">60%</div>
-            <div class="project-title">Project 3</div>
-            <button class="view-project-btn">View Project</button>
+    </section>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 800px;">
+        <div class="modal-content" style="border-radius: 10px; overflow: hidden;">
+            <div class="modal-header" style="background-color: #a9a9a9; color: white;">
+                <h5 class="modal-title" id="taskModalLabel">Task Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 20px; background-color: #f8f9fa;">
+                <div class="d-flex align-items-start">
+                    <img id="modalTaskImage" src="" alt="Task Image" class="rounded-circle mb-3" width="100" height="100">
+                    <div class="ml-3">
+                        <h5 id="modalTaskTitle" style="font-weight: bold;"></h5>
+                        <p><strong>Difficulty :</strong> <span id="modalTaskDifficulty"></span></p>
+                        <p><strong>Project :</strong> <span id="modalTaskProject"></span></p>
+                    </div>
+                    <div class="ml-auto">
+                        <p><strong>Status:</strong> <span id="modalTaskStatus"></span></p>
+                    </div>
+                </div>
+                <p><strong>Username : </strong> <span id="modalTaskUsername"></span></p>
+                <p><strong>Start Date:</strong> <span id="modalTaskStartDate"></span></p>
+                <p><strong>End Date:</strong> <span id="modalTaskEndDate"></span></p>
+                <p><strong>Description:</strong></p>
+                <p id="modalTaskDescription" style="line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer" style="background-color: #f1f1f1;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 5px;">Close</button>
+            </div>
         </div>
     </div>
+</div>
+<script>
+function showTaskDetails(card) {
+    const title = card.getAttribute('data-title');
+    const difficulty = card.getAttribute('data-difficulty');
+    const startDate = card.getAttribute('data-start-date');
+    const endDate = card.getAttribute('data-end-date');
+    const status = card.getAttribute('data-status');
+    const imageUrl = card.getAttribute('data-image-url');
+    const description = card.getAttribute('data-description');
+    const username = card.getAttribute('data-username');
+    const project = card.getAttribute('data-project');
 
-    <!-- Project Select Dropdown -->
-    <div class="team-progress">
-        <select id="projectSelect" class="project-select">
-            <option value="Project 1" selected>Project 1</option>
-            <option value="Project 2">Project 2</option>
-            <option value="Project 3">Project 3</option>
-        </select>
-    </div>
+    document.getElementById('modalTaskTitle').innerText = title;
+    document.getElementById('modalTaskDifficulty').innerText = difficulty;
+    document.getElementById('modalTaskStatus').innerText = status;
+    document.getElementById('modalTaskStartDate').innerText = startDate;
+    document.getElementById('modalTaskEndDate').innerText = endDate;
+    document.getElementById('modalTaskImage').src = imageUrl;
+    document.getElementById('modalTaskDescription').innerText = description;
+    document.getElementById('modalTaskUsername').innerText = username;
+    document.getElementById('modalTaskProject').innerText = project;
+}
+</script>
 
-    <!-- Team Progress Overview -->
-    <div class="team-progress">
-        <h2>Team Progress Overview</h2>
-        <div id="teamMembers"></div>
-    </div>
+{% endblock %}
 
-    <!-- Legend -->
-    <div class="legend">
-        <div><span class="legend-color" style="background-color: #00c0ef;"></span> Progress</div>
-        <div><span class="legend-color" style="background-color: #f56c6c;"></span> Issues</div>
-    </div>
-
-    <script>
-        // Fake data for team members
-        const teamData = {
-            'Project 1': [
-                { name: 'Alex', progress: 20, issues: 10 },
-                { name: 'David', progress: 30, issues: 20 },
-                { name: 'Mark', progress: 40, issues: 5 },
-                { name: 'Michael', progress: 10, issues: 0 }
-            ],
-            'Project 2': [
-                { name: 'Chris', progress: 50, issues: 10 },
-                { name: 'David', progress: 35, issues: 25 },
-                { name: 'Mark', progress: 40, issues: 15 },
-                { name: 'Sarah', progress: 45, issues: 5 }
-            ],
-            'Project 3': [
-                { name: 'Alex', progress: 60, issues: 15 },
-                { name: 'John', progress: 50, issues: 5 },
-                { name: 'Mark', progress: 30, issues: 10 },
-                { name: 'Sarah', progress: 25, issues: 20 }
-            ]
-        };
-
-        // Function to create a progress bar for each team member
-        function renderTeamMembers(project) {
-            const teamMembersDiv = document.getElementById('teamMembers');
-            teamMembersDiv.innerHTML = ''; // Clear previous data
-
-            teamData[project].forEach(member => {
-                const memberContainer = document.createElement('div');
-                memberContainer.classList.add('team-member-container');
-
-                // Member Name
-                const nameDiv = document.createElement('div');
-                nameDiv.classList.add('member-name');
-                nameDiv.textContent = member.name;
-
-                // Progress Bar Wrapper
-                const progressWrapper = document.createElement('div');
-                progressWrapper.classList.add('progress-wrapper');
-
-                // Progress Bar
-                const progressBarWrapper = document.createElement('div');
-                progressBarWrapper.classList.add('progress-bar-wrapper');
-
-                const progressBar = document.createElement('div');
-                progressBar.classList.add('progress-bar');
-                progressBar.style.width = `${member.progress}%`;
-
-                const issueBar = document.createElement('div');
-                issueBar.classList.add('issue-bar');
-                issueBar.style.width = `${member.issues}%`;
-
-                progressBarWrapper.appendChild(progressBar);
-                progressBarWrapper.appendChild(issueBar);
-
-                // Progress Info (numbers)
-                const progressInfo = document.createElement('div');
-                progressInfo.classList.add('progress-info');
-                progressInfo.innerHTML = `
-                    <span>Progress: ${member.progress}%</span>
-                    <span>Issues: ${member.issues}%</span>
-                `;
-
-                // Append all elements to their containers
-                progressWrapper.appendChild(progressBarWrapper);
-                progressWrapper.appendChild(progressInfo);
-                memberContainer.appendChild(nameDiv);
-                memberContainer.appendChild(progressWrapper);
-
-                // Append the member container to the main team member section
-                teamMembersDiv.appendChild(memberContainer);
-            });
-        }
-
-        // Initial rendering for the first project
-        renderTeamMembers('Project 1');
-
-        // Update team members when a new project is selected
-        document.getElementById('projectSelect').addEventListener('change', function() {
-            const selectedProject = this.value;
-            renderTeamMembers(selectedProject);
-            updateCharts(selectedProject);
-        });
-
-        // Circular chart function
-        function createCircularChart(ctx, percentage, isSelected = false) {
-            const blueColor = isSelected ? '#0056b3' : '#00c0ef';
-            const grayColor = isSelected ? '#a9a9a9' : '#d3d3d3';
-            return new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [percentage, 100 - percentage],
-                        backgroundColor: [blueColor, grayColor],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    cutout: '70%',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: { enabled: false },
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-
-        // Initialize charts
-        const projectData = [
-            { id: 'project1Chart', percentage: 60 },
-            { id: 'project2Chart', percentage: 60 },
-            { id: 'project3Chart', percentage: 60 }
-        ];
-
-        const charts = projectData.map(project => {
-            const ctx = document.getElementById(project.id).getContext('2d');
-            return createCircularChart(ctx, project.percentage);
-        });
-
-        // Update chart colors on project selection
-        function updateCharts(selectedProject) {
-            projectData.forEach((project, index) => {
-                const isSelected = project.id.includes(selectedProject.replace(' ', '').toLowerCase());
-                charts[index].destroy();
-                const ctx = document.getElementById(project.id).getContext('2d');
-                charts[index] = createCircularChart(ctx, project.percentage, isSelected);
-            });
-        }
-    </script>
-</body>
-</html>
