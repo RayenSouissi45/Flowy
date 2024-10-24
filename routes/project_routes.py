@@ -19,6 +19,7 @@ def create_project():
     new_project = Project(
         name=data["name"],
         client_name=data["client_name"],
+        progress=data.get("progress", 0),  # Default progress to 0 if not provided
     )
     db.session.add(new_project)
     db.session.commit()
@@ -35,6 +36,8 @@ def update_project(project_id):
 
     # Update the project fields
     project.name = data.get("name", project.name)
+    project.progress = data.get("progress", project.progress)
+
     project.client_name = data.get("client_name", project.client_name)
 
     db.session.commit()  # Commit the changes to the database
