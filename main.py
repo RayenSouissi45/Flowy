@@ -23,8 +23,6 @@ with app.app_context():
     db.create_all()
 
 
-
-
 # Route for login
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -100,16 +98,21 @@ def project_dashboard(projectId):
         ],
     }
 
-    if "username" not in session:
-        flash("Please log in to access the project dashboard", "error")
-        return redirect(url_for("login"))
 
-    user_role = session.get("role")
+# Route for dashboard
+@app.route("/task-board")
+def task_board():
+    tasks = {
+        "todo": [{"id": 1, "title": "Task 1"}, {"id": 2, "title": "Task 2"}],
+        "in_development": [{"id": 3, "title": "Task 3"}],
+        "blocked": [{"id": 4, "title": "Task 4"}],
+        "done": [{"id": 5, "title": "Task 5"}],
+    }
 
-    if user_role == "admin":
+    if "username" in session:
         return render_template(
-            "admin_project.html", projectId=projectId, project=project
-        )
+            "task_board.html", tasks=tasks
+        )  # Make sure the template name matches your actual file
     else:
         flash("You don't have permission to view this page", "warning")
         return redirect(url_for("dashboard"))
@@ -124,13 +127,17 @@ def dashboard():
     user_role = session.get("role")
 
     # Join Task and Project to retrieve project name
-    tasks = db.session.query(Task, Project.name).join(Project).filter(Task.username == session["username"]).all()
+    tasks = (
+        db.session.query(Task, Project.name)
+        .join(Project)
+        .filter(Task.username == session["username"])
+        .all()
+    )
 
     if user_role == "admin":
         return render_template("admin_dashboard.html", tasks=tasks)
     else:
         return render_template("user_dashboard.html", tasks=tasks)
-
 
 
 @app.route("/backlog")
@@ -142,11 +149,12 @@ def backlog():
     if user_role != "admin":
         flash("You don't have permission to view this page", "warning")
         return redirect(url_for("dashboard"))
-    
+
     tasks = Task.query.all()
     users = User.query.all()
     projects = Project.query.all()
     return render_template("backlog.html", tasks=tasks, projects=projects, users=users)
+
 
 # Route for logout
 @app.route("/logout")

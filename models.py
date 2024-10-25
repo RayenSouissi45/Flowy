@@ -120,10 +120,19 @@ class TeamMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(100), nullable=False)
-    to_do_percentage = db.Column(db.Integer, nullable=False)
-    development_percentage = db.Column(db.Integer, nullable=False)
-    blocked_percentage = db.Column(db.Integer, nullable=False)
-    completed_percentage = db.Column(db.Integer, nullable=False)
+    to_do_percentage = db.Column(
+        db.Integer, nullable=True
+    )  # Allow this field to be optional
+    development_percentage = db.Column(
+        db.Integer, nullable=True
+    )  # Allow this field to be optional
+    blocked_percentage = db.Column(
+        db.Integer, nullable=True
+    )  # Allow this field to be optional
+    completed_percentage = db.Column(
+        db.Integer, nullable=True
+    )  # Allow this field to be optional
+    gmail = db.Column(db.String(200), nullable=False)
 
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     project = db.relationship("Project", back_populates="project_members")
@@ -139,6 +148,7 @@ class TeamMember(db.Model):
             "blocked_percentage": self.blocked_percentage,
             "completed_percentage": self.completed_percentage,
             "project_id": self.project_id,
+            "gmail": self.gmail,
         }
 
 

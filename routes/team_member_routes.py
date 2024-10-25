@@ -33,10 +33,19 @@ def create_team_member():
     new_team_member = TeamMember(
         name=data["name"],
         role=data["role"],
-        to_do_percentage=data["to_do_percentage"],
-        development_percentage=data["development_percentage"],
-        blocked_percentage=data["blocked_percentage"],
-        completed_percentage=data["completed_percentage"],
+        gmail=data["gmail"],
+        to_do_percentage=data.get(
+            "to_do_percentage", 0
+        ),  # Default to 0 if not provided
+        development_percentage=data.get(
+            "development_percentage", 0
+        ),  # Default to 0 if not provided
+        blocked_percentage=data.get(
+            "blocked_percentage", 0
+        ),  # Default to 0 if not provided
+        completed_percentage=data.get(
+            "completed_percentage", 0
+        ),  # Default to 0 if not provided
         project_id=data["project_id"],  # Make sure project_id is passed instead
     )
 
@@ -54,6 +63,7 @@ def update_team_member(team_member_id):
     # Update the fields if they are in the request data
     team_member.name = data.get("name", team_member.name)
     team_member.role = data.get("role", team_member.role)
+    team_member.gmail = data.get("gmail", team_member.gmail)
     team_member.to_do_percentage = data.get(
         "to_do_percentage", team_member.to_do_percentage
     )
