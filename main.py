@@ -23,69 +23,6 @@ with app.app_context():
     db.create_all()
 
 
-# Add new project and tasks
-# with app.app_context():
-#     if Project.query.count() == 0:
-#         project = Project(name="Project 1")
-#         db.session.add(project)
-#         db.session.commit()
-
-#         project_id = project.id
-
-#         task1 = Task(
-#             title="Task 1",
-#             difficulty="hard",
-#             start_date="2024-10-01 12:00",
-#             end_date="2024-10-20 18:30",
-#             description="This is the description for Task 1.",
-#             image_url="https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg",
-#             status="OnDevelopment",
-#             username="Aziz Bjaoui",
-#             importance="6",
-#             estimated_time="24",
-#             project_id=project_id,
-#         )
-#         task2 = Task(
-#             title="Task 2",
-#             difficulty="normal",
-#             start_date="2024-10-01 12:00",
-#             end_date="2024-10-20 18:30",
-#             description="This is the description for Task 2.",
-#             image_url="https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg",
-#             status="Blocked",
-#             username="Aziz Bjaoui",
-#             importance="1",
-#             estimated_time="60",
-#             project_id=project_id,
-#         )
-#         task3 = Task(
-#             title="Task 3",
-#             difficulty="normal",
-#             start_date="2024-10-01 12:00",
-#             end_date="2024-10-20 18:30",
-#             description="This is the description for Task 2.",
-#             image_url="https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg",
-#             status="Blocked",
-#             username="Aziz Bjaoui",
-#             importance="2",
-#             estimated_time="3",
-#             project_id=project_id,
-#         )
-#         task4 = Task(
-#             title="Task 4",
-#             difficulty="normal",
-#             start_date="2024-10-01 12:00",
-#             end_date="2024-10-20 18:30",
-#             description="This is the description for Task 2.",
-#             image_url="https://img.freepik.com/photos-gratuite/portrait-homme-riant_23-2148859448.jpg",
-#             status="Blocked",
-#             username="Aziz Bjaoui",
-#             importance="4",
-#             estimated_time="14",
-#             project_id=project_id,
-#         )
-#         db.session.add_all([task1, task2, task3, task4])
-#         db.session.commit()
 
 
 # Route for login

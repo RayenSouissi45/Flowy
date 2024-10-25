@@ -148,17 +148,17 @@ class Task(db.Model):
     description = db.Column(db.Text, nullable=True)
     difficulty = db.Column(db.String(50), nullable=False)
     importance = db.Column(db.Integer, nullable=False)
+    username = db.Column(db.String(150), nullable=False)
     image = db.Column(db.String(250))
     development_phase = db.Column(db.String(50))
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     estimated_time = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.DateTime, nullable=True)
     limit_date = db.Column(db.DateTime, nullable=True)
-
     task_assignments = db.relationship("TaskAssignment", backref="task", lazy=True)
 
 
-class TaskAssignment(db.Model):
+class TaskAssignment(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     team_member_id = db.Column(
