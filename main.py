@@ -163,22 +163,25 @@ def project_dashboard(projectId):
         ],
     }
 
-    # Check if the user is logged in
-    if "username" not in session:
-        flash("Please log in to access the project dashboard", "error")
-        return redirect(url_for("login"))
 
-    # Get the user's role
-    user_role = session.get("role")
+# Route for dashboard
+@app.route("/task-board")
+def task_board():
+    tasks = {
+        "todo": [{"id": 1, "title": "Task 1"}, {"id": 2, "title": "Task 2"}],
+        "in_development": [{"id": 3, "title": "Task 3"}],
+        "blocked": [{"id": 4, "title": "Task 4"}],
+        "done": [{"id": 5, "title": "Task 5"}],
+    }
 
-    # Check if the user is an admin
-    if user_role == "admin":
+    if "username" in session:
         return render_template(
-            "admin_project.html", projectId=projectId, project=project
-        )
+            "task_board.html", tasks=tasks
+        )  # Make sure the template name matches your actual file
     else:
-        flash("You don't have permission to view this page", "warning")
-        return redirect(url_for("dashboard"))
+        return redirect(
+            url_for("login")
+        )  # Add a redirect for when the user is not logged in
 
 
 # Route for dashboard
