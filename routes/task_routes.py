@@ -33,6 +33,7 @@ def create_task():
         description=data.get("description"),
         difficulty=data["difficulty"],
         importance=data["importance"],
+        username=data["username"],
         image=data.get("image"),
         development_phase=data["development_phase"],
         project_id=data["project_id"],
