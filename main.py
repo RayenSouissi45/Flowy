@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User, Task, Project
+from models import TeamMember, db, User, Task, Project
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from routes.project_routes import project_routes
@@ -98,24 +98,37 @@ def project_dashboard(projectId):
         ],
     }
 
+    if "username" not in session:
+        flash("Please log in to access the project dashboard", "error")
+        return redirect(url_for("login"))
 
-# Route for dashboard
-@app.route("/task-board")
-def task_board():
-    tasks = {
-        "todo": [{"id": 1, "title": "Task 1"}, {"id": 2, "title": "Task 2"}],
-        "in_development": [{"id": 3, "title": "Task 3"}],
-        "blocked": [{"id": 4, "title": "Task 4"}],
-        "done": [{"id": 5, "title": "Task 5"}],
-    }
+    user_role = session.get("role")
 
-    if "username" in session:
+    if user_role == "admin":
         return render_template(
-            "task_board.html", tasks=tasks
-        )  # Make sure the template name matches your actual file
+            "admin_project.html", projectId=projectId, project=project
+        )
     else:
         flash("You don't have permission to view this page", "warning")
         return redirect(url_for("dashboard"))
+
+# Route for dashboard
+# @app.route("/task-board")
+# def task_board():
+#     tasks = {
+#         "todo": [{"id": 1, "title": "Task 1"}, {"id": 2, "title": "Task 2"}],
+#         "in_development": [{"id": 3, "title": "Task 3"}],
+#         "blocked": [{"id": 4, "title": "Task 4"}],
+#         "done": [{"id": 5, "title": "Task 5"}],
+#     }
+
+#     if "username" in session:
+#         return render_template(
+#             "task_board.html", tasks=tasks
+#         )  # Make sure the template name matches your actual file
+#     else:
+#         flash("You don't have permission to view this page", "warning")
+#         return redirect(url_for("dashboard"))
 
 
 # Route for dashboard
@@ -138,8 +151,39 @@ def dashboard():
         return render_template("admin_dashboard.html", tasks=tasks)
     else:
         return render_template("user_dashboard.html", tasks=tasks)
+    
+# Route for task board
+@app.route("/task-board", methods=["GET"])
+def task_board():
+    if "username" not in session:
+        flash("Please log in to access the task board", "error")
+        return redirect(url_for("login"))
+
+    project_id = request.args.get("project_id")  # Get project ID from query params
+
+    # Fetch tasks for the specific project if project_id is provided
+    if project_id:
+        tasks = {
+            "todo": Task.query.filter_by(development_phase="todo", project_id=project_id).all(),
+            "in_development": Task.query.filter_by(development_phase="OnDevelopment", project_id=project_id).all(),
+            "blocked": Task.query.filter_by(development_phase="Blocked", project_id=project_id).all(),
+            "done": Task.query.filter_by(development_phase="Completed", project_id=project_id).all(),
+        }
+    else:
+        # Fetch all tasks if no project is selected
+        tasks = {
+            "todo": Task.query.filter_by(development_phase="todo").all(),
+            "in_development": Task.query.filter_by(development_phase="OnDevelopment").all(),
+            "blocked": Task.query.filter_by(development_phase="Blocked").all(),
+            "done": Task.query.filter_by(development_phase="Completed").all(),
+        }
+
+    projects = Project.query.all()
+    team_members = TeamMember.query.all()
+    return render_template("task_board.html", tasks=tasks, projects=projects, team_member=team_members)
 
 
+#  Route for Backlog
 @app.route("/backlog")
 def backlog():
     if "username" not in session:

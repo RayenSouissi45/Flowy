@@ -1,127 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kanban Board</title>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8; /* Light grey background for the board */
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
+{% block content %}
 
-        .board {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-        }
-
-        .phase {
-            width: 24%; /* More spacing between columns */
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
-            transition: transform 0.2s;
-        }
-
-        .phase:hover {
-            transform: scale(1.02); /* Slight scale-up on hover */
-        }
-
-        .phase h2 {
-            text-align: center;
-            color: #007BFF; /* Blue color for titles */
-            font-size: 18px;
-            border-bottom: 2px solid #007BFF;
-            padding-bottom: 10px;
-        }
-
-        .task {
-            background-color: #fff;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: grab;
-            transition: background-color 0.2s, box-shadow 0.2s;
-        }
-
-        .task:hover {
-            background-color: #e8f5ff; /* Light blue hover background */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
-        }
-
-        .task img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 15px;
-        }
-
-        .task span {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .task.dragging {
-            opacity: 0.5;
-            background-color: #f0f4f8; /* Lighter background when dragging */
-        }
-
-        .dropzone {
-            min-height: 300px;
-            background-color: #f4f4f4;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        .dropzone.dragover {
-            background-color: #cde0f2; /* Blue highlight when dragging over */
-        }
-        
-        /* Adding more spacing to the board area for better readability */
-        .board-container {
-            padding: 20px;
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        /* Responsiveness */
-        @media (max-width: 768px) {
-            .board {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .phase {
-                width: 90%;
-                margin-bottom: 20px;
-            }
-        }
-
-    </style>
-</head>
 <body>
+    <div class="form-group" style="display: flex; align-items: center;">
+        <!-- Project Dropdown -->
+        <select id="project-select" onchange="captureProjectId()"
+            style="width: 25%; padding: 10px; margin-left: 8%; border-radius: 8px;background-color: rgb(195, 195, 195);">
+            <option value="">Select a Project</option>
+            {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Member Dropdown -->
+        <select id="member-select" onchange="captureMemberId()"
+            style="width: 16%; padding: 10px; margin-left: 2%; border-radius: 8px;background-color: rgb(195, 195, 195);">
+            <option value="">Member name</option>
+            {% for member in team_member %}
+            <option value="{{ member.id }}">{{ member.name }}</option>
+            {% endfor %}
+        </select>
+
+        <div
+            style="display: flex; align-items: center; margin-left: 2%; background-color: white; padding: 10px; border-radius: 8px; border: 1px solid black; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);background-color: rgb(195, 195, 195);">
+            <div style="display: flex; align-items: center; margin-right: 20px;margin-left: 35px;">
+                <div
+                    style="width: 12px; height: 12px; background-color: rgb(215, 26, 26); border-radius: 50%; margin-right: 5px;">
+                </div>
+                <span style="font-size: 14px;">Delayed Ticket</span>
+            </div>
+            <div style="display: flex; align-items: center; margin-right: 20px;">
+                <div
+                    style="width: 12px; height: 12px; background-color: rgb(77, 77, 77); border-radius: 50%; margin-right: 5px;">
+                </div>
+                <span style="font-size: 14px;">Upcoming Ticket</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div
+                    style="width: 12px; height: 12px; background-color: rgb(255, 255, 255); border-radius: 50%; margin-right: 5px;">
+                </div>
+                <span style="font-size: 14px;margin-right: 35px;">Today's ticket</span>
+            </div>
+        </div>
+
+        <div
+            style="display: flex; align-items: center; margin-left: 2%; background-color: white; padding: 10px; border-radius: 8px; border: 1px solid black; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);background-color: rgb(195, 195, 195);">
+            <div style="display: flex; align-items: center; margin-right: 20px;">
+                <i class="fas fa-filter" style="font-size: 14px; margin-right: 5px;"></i>
+                <span style="font-size: 14px;">Filter</span>
+            </div>
+        </div>
+    </div>
+
 
     <div class="board-container">
         <div class="board">
             <!-- TO DO Phase -->
-            <div class="phase" id="todo-phase">
+            <div class="phase" id="ToDo-phase">
                 <h2>TO DO</h2>
-                <div class="dropzone" id="todo-dropzone">
+                <div class="dropzone" id="ToDo-dropzone">
                     {% for task in tasks['todo'] %}
                     <div class="task" draggable="true" id="task-{{ task.id }}">
-                        <img src="https://via.placeholder.com/50" alt="Avatar">
+                        <img src="{{ task.image }}" alt="Avatar">
                         <span>{{ task.title }}</span>
                     </div>
                     {% endfor %}
@@ -129,12 +69,12 @@
             </div>
 
             <!-- IN DEVELOPMENT Phase -->
-            <div class="phase" id="dev-phase">
+            <div class="phase" id="OnDevelopment-phase">
                 <h2>IN DEVELOPMENT</h2>
-                <div class="dropzone" id="dev-dropzone">
+                <div class="dropzone" id="OnDevelopment-dropzone">
                     {% for task in tasks['in_development'] %}
                     <div class="task" draggable="true" id="task-{{ task.id }}">
-                        <img src="https://via.placeholder.com/50" alt="Avatar">
+                        <img src="{{ task.image }}" alt="Avatar">
                         <span>{{ task.title }}</span>
                     </div>
                     {% endfor %}
@@ -142,12 +82,12 @@
             </div>
 
             <!-- BLOCKED Phase -->
-            <div class="phase" id="blocked-phase">
+            <div class="phase" id="Blocked-phase">
                 <h2>BLOCKED</h2>
-                <div class="dropzone" id="blocked-dropzone">
+                <div class="dropzone" id="Blocked-dropzone">
                     {% for task in tasks['blocked'] %}
                     <div class="task" draggable="true" id="task-{{ task.id }}">
-                        <img src="https://via.placeholder.com/50" alt="Avatar">
+                        <img src="{{ task.image}}" alt="Avatar">
                         <span>{{ task.title }}</span>
                     </div>
                     {% endfor %}
@@ -155,12 +95,12 @@
             </div>
 
             <!-- DONE Phase -->
-            <div class="phase" id="done-phase">
+            <div class="phase" id="Completed-phase">
                 <h2>DONE</h2>
-                <div class="dropzone" id="done-dropzone">
+                <div class="dropzone" id="Completed-dropzone">
                     {% for task in tasks['done'] %}
                     <div class="task" draggable="true" id="task-{{ task.id }}">
-                        <img src="https://via.placeholder.com/50" alt="Avatar">
+                        <img src="{{ task.image }}" alt="Avatar">
                         <span>{{ task.title }}</span>
                     </div>
                     {% endfor %}
@@ -176,35 +116,91 @@
         // Handle drag start
         tasks.forEach(task => {
             task.addEventListener('dragstart', (e) => {
-                task.classList.add('dragging');
                 e.dataTransfer.setData('text/plain', task.id);
-            });
-
-            task.addEventListener('dragend', () => {
-                task.classList.remove('dragging');
             });
         });
 
         // Handle drop zones
         dropzones.forEach(dropzone => {
-            dropzone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropzone.classList.add('dragover');
-            });
-
-            dropzone.addEventListener('dragleave', () => {
-                dropzone.classList.remove('dragover');
-            });
+            dropzone.addEventListener('dragover', (e) => e.preventDefault());
 
             dropzone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 const taskId = e.dataTransfer.getData('text/plain');
                 const task = document.getElementById(taskId);
                 dropzone.appendChild(task);
-                dropzone.classList.remove('dragover');
+
+                const newStatus = dropzone.id.replace('-dropzone', '');
+                saveChanges(taskId, newStatus);
             });
         });
+
+        // Save the task's new status immediately on drop
+        function saveChanges(taskId, phase) {
+            const numericTaskId = taskId.replace('task-', '');
+            const taskData = {
+                development_phase: phase
+            };
+
+
+            fetch(`/tasks/${numericTaskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(taskData),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update task.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Task updated successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error updating task:', error);
+                });
+        }
+        dropzones.forEach(dropzone => {
+            dropzone.addEventListener('dragover', (e) => e.preventDefault());
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const taskId = e.dataTransfer.getData('text/plain');
+                const task = document.getElementById(taskId);
+                dropzone.appendChild(task);
+
+                const newStatus = dropzone.id.replace('-dropzone', '');
+                saveChanges(taskId, newStatus);
+            });
+        });
+        function captureProjectId() {
+            const projectId = document.getElementById("project-select").value;
+            fetchTasksByProject(projectId);
+        }
+
+        function fetchTasksByProject(projectId) {
+            fetch(`/task-board?project_id=${projectId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch tasks.");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Replace the task board content with the new tasks for the selected project
+                    document.querySelector(".board-container").innerHTML = new DOMParser().parseFromString(html, "text/html").querySelector(".board-container").innerHTML;
+                })
+                .catch(error => console.error("Error fetching tasks:", error));
+        }
+        function captureMemberId() {
+    const memberId = document.getElementById("member-select").value;
+    // You can now use this memberId for further logic if needed
+    console.log("Selected member ID:", memberId);
+}
     </script>
 
 </body>
-</html>
+{% endblock %}
