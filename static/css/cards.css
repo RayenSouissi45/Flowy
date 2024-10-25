@@ -29,7 +29,9 @@ body {
     background-color: rgb(255, 255, 255);
     background-size: cover;
     background-position: center;
+    font-family: Arial, sans-serif;
 }
+
 
 .dropdown {
     position: relative;
@@ -142,3 +144,6 @@ a:hover {
         left: 0; /* Align it to the left */
     }
 }
+
+/* ******************************************** */
+

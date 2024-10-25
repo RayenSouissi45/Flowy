@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f8f9fa; color: #343a40; }
-        .navbar { background-color: #343a40; padding: 1em; color: white; text-align: center; }
-        .navbar a { color: white; text-decoration: none; padding: 0 15px; }
+        /* .navbar { background-color: #343a40; padding: 1em; color: white; text-align: center; }
+        .navbar a { color: white; text-decoration: none; padding: 0 15px; } */
 
         .dashboard-container { display: flex; justify-content: center; flex-wrap: wrap; margin: 20px; }
         .chart-container { position: relative; width: 250px; height: 250px; margin: 50px; }
@@ -35,11 +35,11 @@
 </head>
 <body>
     <!-- Navbar Section -->
-    <div class="navbar">
+    <!-- <div class="navbar">
         <a href="#">Home</a>
         <a href="#">Settings</a>
         <a href="#">Reports</a>
-    </div>
+    </div> -->
 
     <!-- Project Display (Dynamic) -->
     <div class="dashboard-container" id="dashboardContainer"></div>
@@ -235,3 +235,4 @@
     </script>
 </body>
 </html>
+{% endblock %}
