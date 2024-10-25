@@ -1,17 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-
-
-# User model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False, unique=True)
-    password_hash = db.Column(db.String(150), nullable=False)
-    image = db.Column(db.String(150), nullable=True)
-    role = db.Column(db.String(50), default="user")
-
-
 # # Project model
 # class Project(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
@@ -82,65 +68,99 @@ class User(db.Model):
 #         return hours_by_phase
 
 
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+
+# User model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), nullable=False, unique=True)
+    password_hash = db.Column(db.String(150), nullable=False)
+    image = db.Column(db.String(150), nullable=True)
+    role = db.Column(db.String(50), default="user")
+
+
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     client_name = db.Column(db.String(150), nullable=False)
-    # delivery_date = db.Column(db.Date, nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
+    progress = db.Column(db.Integer, nullable=False)
+    to_do_tasks = db.Column(db.Integer, nullable=False)
+    on_development_tasks = db.Column(db.Integer, nullable=False)
+    completed_tasks = db.Column(db.Integer, nullable=False)
+    blocked_tasks = db.Column(db.Integer, nullable=False)
+    actual_work_done = db.Column(db.Integer, nullable=False)
+    acutal_work_remaning = db.Column(db.Integer, nullable=False)
+    planned_work_done = db.Column(db.Integer, nullable=False)
+    planned_work_remaning = db.Column(db.Integer, nullable=False)
+
+    # Establish the relationship with TeamMember (without an intermediate Team model)
+    project_members = db.relationship("TeamMember", back_populates="project")
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
             "client_name": self.client_name,
-            # "delivery_date": str(self.delivery_date),
-            "team_id": self.team_id,
+            "progress": self.progress,
+            "to_do_tasks": self.to_do_tasks,
+            "on_development_tasks": self.on_development_tasks,
+            "completed_tasks": self.completed_tasks,
+            "blocked_tasks": self.blocked_tasks,
+            "actual_work_done": self.actual_work_done,
+            "actual_work_remaining": self.acutal_work_remaning,
+            "planned_work_done": self.planned_work_done,
+            "planned_work_remaining": self.planned_work_remaning,
         }
-
-
-class Team(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))  # Link to project
-
-    # Relationship: A team has many members
-    members = db.relationship("TeamMember", backref="team", lazy=True)
 
 
 class TeamMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(100), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"))  # Link to the team
+    to_do_percentage = db.Column(db.Integer, nullable=False)
+    development_percentage = db.Column(db.Integer, nullable=False)
+    blocked_percentage = db.Column(db.Integer, nullable=False)
+    completed_percentage = db.Column(db.Integer, nullable=False)
 
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
+    project = db.relationship("Project", back_populates="project_members")
     assigned_tasks = db.relationship("TaskAssignment", backref="team_member", lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "role": self.role,
+            "to_do_percentage": self.to_do_percentage,
+            "development_percentage": self.development_percentage,
+            "blocked_percentage": self.blocked_percentage,
+            "completed_percentage": self.completed_percentage,
+            "project_id": self.project_id,
+        }
 
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    difficulty = db.Column(db.String(50), nullable=False)  # e.g. 'hard', 'normal'
+    difficulty = db.Column(db.String(50), nullable=False)
     importance = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.String(250))  # URL to image
-    development_phase = db.Column(db.String(50))  # e.g. 'OnDevelopment', 'Blocked'
-    project_id = db.Column(
-        db.Integer, db.ForeignKey("project.id"), nullable=False
-    )  # Link to the project
-    estimated_time = db.Column(
-        db.Float, nullable=False
-    )  # Estimated time to complete in hours
+    username = db.Column(db.String(150), nullable=False)
+    image = db.Column(db.String(250))
+    development_phase = db.Column(db.String(50))
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
+    estimated_time = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.DateTime, nullable=True)
     limit_date = db.Column(db.DateTime, nullable=True)
-
     task_assignments = db.relationship("TaskAssignment", backref="task", lazy=True)
 
 
-class TaskAssignment(db.Model):
+class TaskAssignment(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
-    task_id = db.Column(
-        db.Integer, db.ForeignKey("task.id"), nullable=False
-    )  # Link to the task
+    task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     team_member_id = db.Column(
         db.Integer, db.ForeignKey("team_member.id"), nullable=False
-    )  # Link to the team member
+    )
