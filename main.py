@@ -178,7 +178,7 @@ def project_dashboard(projectId):
         )
     else:
         flash("You don't have permission to view this page", "warning")
-        return redirect(url_for("dashboard"))  # Redirect non-admins to their dashboard
+        return redirect(url_for("dashboard"))
 
 
 # Route for dashboard

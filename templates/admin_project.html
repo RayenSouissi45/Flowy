@@ -12,21 +12,25 @@
             padding: 0;
             background-color: #f5f5f5;
         }
+
         .container {
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
+
         h1, h2 {
             text-align: center;
             color: #333;
         }
+
         .charts {
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
             gap: 20px;
         }
+
         .chart {
             width: 48%;
             background-color: #fff;
@@ -37,15 +41,18 @@
             display: flex;
             flex-direction: column;
         }
+
         .chart h2 {
             margin-bottom: 20px;
         }
+
         .chart canvas {
             margin-top: auto;
             margin-bottom: auto;
             max-width: 100%;
             height: 400px;
         }
+
         .dropdown {
             background-color: #e0e0e0;
             padding: 10px;
@@ -55,9 +62,154 @@
             font-size: 1.5rem;
             border-radius: 10px;
         }
+
+        /* Team section styles */
+        .team-section {
+            margin-top: 40px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .team-member {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .team-member img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .team-member h3 {
+            margin: 10px 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .team-member p {
+            color: #666;
+        }
+
+        .team-member .options {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+        }
+
+        .team-member .options button {
+            display: block;
+            padding: 5px 10px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+
+        .team-member .options button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .dots-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .add-button {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-header span {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .modal-body input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-footer button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Project Progress Tracking</h1>
         <div class="dropdown">
@@ -77,39 +229,248 @@
                 <canvas id="progressComparisonChart"></canvas>
             </div>
         </div>
+
+        <!-- Team section -->
+        <div class="team-section">
+            <h2>Team Members</h2>
+            <div class="add-button" onclick="openModal()">+ Add Team Member</div>
+            <div class="team-grid" id="teamGrid"></div>
+        </div>
+
+    </div>
+
+    <!-- Modal for adding/editing team members -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Team Member</h2>
+                <span onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="memberName" placeholder="Member Name">
+                <input type="text" id="memberRole" placeholder="Member Role">
+                <input type="email" id="memberEmail" placeholder="Member Email">
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveMember()">Save</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Function to fetch project data from the API
+        
+        let teamMembers = [];
+        let editingIndex = null;
+
+        async function fetchTeamMembers() {
+            try {
+                const response = await fetch('/team_members');
+                teamMembers = await response.json();
+                displayTeamMembers();
+            } catch (error) {
+                console.error('Error fetching team members:', error);
+            }
+        }
+
+        window.onload = fetchTeamMembers;
+
+        function saveMember() {
+    // Retrieve user input from input fields by their correct IDs
+    const name = document.getElementById("memberName").value;
+    const role = document.getElementById("memberRole").value;
+    const gmail = document.getElementById("memberEmail").value;
+    const project_id = "{{ projectId }}"; // Replace this with the actual value or method to get `projectId`
+
+    // Construct the data object with user input and project_id
+    const data = {
+        name: name,
+        role: role,
+        gmail: gmail,
+        project_id: project_id
+    };
+
+    // Send the POST request
+    fetch("http://127.0.0.1:5000/team_members", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to save team member");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Team member saved:", data);
+        closeModal(); // Close modal after saving
+        fetchTeamMembers(); // Refresh team members
+    })
+    .catch(error => console.error("Error saving team member:", error));
+}
+
+
+async function editMember(index) {
+    const member = teamMembers[index];
+    openModal(index);
+}
+
+async function updateMember(id, updatedMember) {
+    try {
+        const response = await fetch(`/team_members/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedMember),
+        });
+        const updated = await response.json();
+        // Update your frontend with the edited member data
+    } catch (error) {
+        console.error('Error updating team member:', error);
+    }
+}
+async function removeMember(index) {
+            const memberId = teamMembers[index].id;
+            if (confirm('Are you sure you want to remove this member?')) {
+                try {
+                    const response = await fetch(`/team_members/${memberId}`, {
+                        method: 'DELETE',
+                    });
+                    if (response.ok) {
+                        teamMembers.splice(index, 1);
+                        displayTeamMembers();
+                    }
+                } catch (error) {
+                    console.error('Error deleting team member:', error);
+                }
+            }
+        }
+
+
+
+        // Function to open modal
+        function openModal(index = null) {
+            document.getElementById('modal').style.display = 'flex';
+            if (index !== null) {
+                editingIndex = index;
+                const member = teamMembers[index];
+                document.getElementById('modalTitle').textContent = 'Edit Team Member';
+                document.getElementById('memberName').value = member.name;
+                document.getElementById('memberRole').value = member.role;
+                document.getElementById('memberEmail').value = member.email;
+            } else {
+                editingIndex = null;
+                document.getElementById('modalTitle').textContent = 'Add Team Member';
+                document.getElementById('memberName').value = '';
+                document.getElementById('memberRole').value = '';
+                document.getElementById('memberEmail').value = '';
+            }
+        }
+
+
+        function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('memberName').value = '';
+    document.getElementById('memberRole').value = '';
+    document.getElementById('memberEmail').value = '';
+}
+
+        // Function to display team members
+        function displayTeamMembers() {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+            teamMembers.forEach((member, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'team-member';
+                memberDiv.innerHTML = `
+                    <img src="https://via.placeholder.com/80" alt="Team Member">
+                    <h3>${member.name}</h3>
+                    <p>${member.role}</p>
+                    <p>${member.gmail}</p>
+                    <div class="dots-icon" onclick="toggleOptions(${index})">⋮</div>
+                    <div class="options" id="options-${index}">
+                        <button onclick="editMember(${index})">Edit</button>
+                        <button onclick="removeMember(${index})">Remove</button>
+                    </div>
+                `;
+                grid.appendChild(memberDiv);
+            });
+        }
+
+        // Function to toggle options menu
+        function toggleOptions(index) {
+            document.querySelectorAll('.options').forEach((menu, idx) => {
+                if (idx !== index) {
+                    menu.style.display = 'none';
+                }
+            });
+            const options = document.getElementById(`options-${index}`);
+            options.style.display = options.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Function to edit member
+        function editMember(index) {
+            openModal(index);
+        }
+
+        // Function to remove member
+        async function removeMember(index) {
+    const memberId = teamMembers[index].id;
+    if (confirm('Are you sure you want to remove this member?')) {
+        try {
+            const response = await fetch(`/team_members/${memberId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                teamMembers.splice(index, 1); // Remove from local array
+                displayTeamMembers();         // Refresh list in UI
+            } else {
+                console.error('Failed to delete team member');
+            }
+        } catch (error) {
+            console.error('Error deleting team member:', error);
+        }
+    }
+}
+
+
+        // Close options menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.classList.contains('dots-icon')) {
+                document.querySelectorAll('.options').forEach(options => {
+                    options.style.display = 'none';
+                });
+            }
+        });
+
+        // Fetch project data for charts
+        const projectId = "{{ projectId }}";
         function fetchProjectData(projectId) {
             fetch(`/projects/${projectId}`)
                 .then(response => response.json())
                 .then(project => {
                     document.getElementById("projectName").textContent = project.name;
-
-                    // Create charts with the project data
                     createTaskStatusChart(project);
                     createProgressComparisonChart(project);
                 })
                 .catch(error => console.error('Error fetching project data:', error));
         }
 
-        // Pie chart for Task Distribution by Status
+        // Create Task Status Pie Chart
         function createTaskStatusChart(project) {
-            const taskCounts = [
-                project.to_do_tasks,
-                project.completed_tasks,
-                project.on_development_tasks,
-                project.blocked_tasks
-            ];
-
             const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
             new Chart(taskStatusCtx, {
                 type: 'pie',
                 data: {
                     labels: ['To Do Tasks', 'Completed Tasks', 'On Development Tasks', 'Blocked Tasks'],
                     datasets: [{
-                        data: taskCounts,
+                        data: [
+                            project.to_do_tasks,
+                            project.completed_tasks,
+                            project.on_development_tasks,
+                            project.blocked_tasks
+                        ],
                         backgroundColor: ['#f9d835', '#4caf50', '#2196f3', '#f44336'],
                         hoverOffset: 4
                     }]
@@ -125,7 +486,7 @@
             });
         }
 
-        // Horizontal bar chart for Progress Comparison
+        // Create Progress Comparison Bar Chart
         function createProgressComparisonChart(project) {
             const progressComparisonCtx = document.getElementById('progressComparisonChart').getContext('2d');
             new Chart(progressComparisonCtx, {
@@ -147,12 +508,9 @@
                 },
                 options: {
                     responsive: true,
-                    indexAxis: 'y',  // Horizontal bar chart
+                    indexAxis: 'y',
                     scales: {
                         x: {
-                            beginAtZero: true
-                        },
-                        y: {
                             beginAtZero: true
                         }
                     },
@@ -165,8 +523,7 @@
             });
         }
 
-        // Call the function to fetch project data
-        const projectId = 1;  // You can dynamically pass this from the URL or backend
+        // Call function to fetch project data
         fetchProjectData(projectId);
     </script>
 </body>
