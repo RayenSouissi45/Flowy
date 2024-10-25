@@ -16,47 +16,48 @@
 
 
     <div class="row">
-        {% for task in tasks %}
-        {% if task.username == session.username %}
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-card"
-                style="position: relative; overflow: hidden; background-color: rgb(207, 207, 207); border-radius: 10px; cursor: pointer;"
-                data-toggle="modal" data-target="#taskModal" data-title="{{ task.title }}"
-                data-difficulty="{{ task.difficulty }}" data-start-date="{{ task.start_date }}"
-                data-limit-date="{{ task.limit_date }}" data-development_phase="{{ task.development_phase }}"
-                data-image="{{ task.image }}" data-description="{{ task.description }}"
-                data-username="{{ task.username }}" data-project_id="{{ task.project_id.name }}"
-                onclick="showTaskDetails(this)">
+        {% for task, project_name in tasks %}
+    {% if task.username == session.username %}
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-card"
+            style="position: relative; overflow: hidden; background-color: rgb(207, 207, 207); border-radius: 10px; cursor: pointer;"
+            data-toggle="modal" data-target="#taskModal" data-title="{{ task.title }}"
+            data-difficulty="{{ task.difficulty }}" data-start-date="{{ task.start_date }}"
+            data-development_phase="{{ task.development_phase }}"
+            data-image="{{ task.image }}" data-description="{{ task.description }}"
+            data-estimated_time="{{ task.estimated_time }}" data-username="{{ task.username }}"
+            data-project_name="{{ project_name }}" onclick="showTaskDetails(this)">
 
-                <div class="d-flex align-items-start p-3">
-                    <img src="{{ task.image }}" alt="Task Image" class="rounded-circle" width="50" height="50">
-                    <div class="ml-3">
-                        <h5 class="card-title mb-1">{{ task.title }}</h5>
-                        <p class="text-muted mb-1">Difficulty: {{ task.difficulty }}</p>
-                    </div>
+            <div class="d-flex align-items-start p-3">
+                <img src="{{ task.image }}" alt="Task Image" class="rounded-circle" width="50" height="50">
+                <div class="ml-3">
+                    <h5 class="card-title mb-1">{{ task.title }}</h5>
+                    <p class="text-muted mb-1">Difficulty: {{ task.difficulty }}</p>
                 </div>
-                <div style="position: absolute; top: 10px; right: 6px;">
-                    {% if task.development_phase == 'Completed' %}
-                    <span class="badge badge-success rounded-circle p-2 task-status-badge">&nbsp;</span>
-                    {% elif task.development_phase == 'Blocked' %}
-                    <span class="badge badge-danger rounded-circle p-2 task-status-badge">&nbsp;</span>
-                    {% elif task.development_phase == 'OnDevelopment' %}
-                    <span class="badge badge-warning rounded-circle p-2 task-status-badge">&nbsp;</span>
-                    {% endif %}
-                </div>
-                <div class="p-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1"><strong>Start Date:</strong> {{ task.start_date }}</p>
-                            <p class="mb-1"><strong>Limit Date:</strong> {{ task.limit_date }}</p>
-                        </div>
-                        <img src="../static/images/calendar.png" class="calendar">
+            </div>
+            <div style="position: absolute; top: 10px; right: 6px;">
+                {% if task.development_phase == 'Completed' %}
+                <span class="badge badge-success rounded-circle p-2 task-status-badge">&nbsp;</span>
+                {% elif task.development_phase == 'Blocked' %}
+                <span class="badge badge-danger rounded-circle p-2 task-status-badge">&nbsp;</span>
+                {% elif task.development_phase == 'OnDevelopment' %}
+                <span class="badge badge-warning rounded-circle p-2 task-status-badge">&nbsp;</span>
+                {% endif %}
+            </div>
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1"><strong>Estimated Time:</strong> {{ task.estimated_time }} H</p>
+                        <p class="mb-1"><strong>Project:</strong> {{ project_name }}</p>
                     </div>
+                    <img src="../static/images/calendar.png" class="calendar">
                 </div>
             </div>
         </div>
-        {% endif %}
-        {% endfor %}
+    </div>
+    {% endif %}
+{% endfor %}
+
     </div>
     <h1 style="text-align: center;font-size: 2.5em;margin-top: 80px; margin-bottom: 80px;color: #333;">Activity feed
     </h1>
@@ -90,8 +91,8 @@
                     </div>
                 </div>
                 <p><strong>Username : </strong> <span id="modalTaskUsername"></span></p>
-                <p><strong>Start Date:</strong> <span id="modalTaskStartDate"></span></p>
-                <p><strong>Limit Date:</strong> <span id="modalTaskLimitDate"></span></p>
+                <p><strong>Estimated time:</strong> <span id="modalTaskEstimatedTime"></span></p>
+                <!-- <p><strong>Limit Date:</strong> <span id="modalTaskLimitDate"></span></p> -->
                 <p><strong>Description:</strong></p>
                 <p id="modalTaskDescription" style="line-height: 1.5;"></p>
             </div>
@@ -106,23 +107,24 @@
     function showTaskDetails(card) {
         const title = card.getAttribute('data-title');
         const difficulty = card.getAttribute('data-difficulty');
-        const startDate = card.getAttribute('data-start-date');
-        const limitDate = card.getAttribute('data-limit-date');
+        const estimated_time = card.getAttribute('data-estimated_time');
+        // const limitDate = card.getAttribute('data-limit-date');
         const development_phase = card.getAttribute('data-development_phase');
         const imageUrl = card.getAttribute('data-image');
         const description = card.getAttribute('data-description');
         const username = card.getAttribute('data-username');
         const project_id = card.getAttribute('data-project_id');
+        const project_name = card.getAttribute('data-project_name');
 
         document.getElementById('modalTaskTitle').innerText = title;
         document.getElementById('modalTaskDifficulty').innerText = difficulty;
         document.getElementById('modalTaskdevelopment_phase').innerText = development_phase;
-        document.getElementById('modalTaskStartDate').innerText = startDate;
-        document.getElementById('modalTaskLimitDate').innerText = limitDate;
+        document.getElementById('modalTaskEstimatedTime').innerText = estimated_time;
+        // document.getElementById('modalTaskLimitDate').innerText = limitDate;
         document.getElementById('modalTaskImage').src = imageUrl;
         document.getElementById('modalTaskDescription').innerText = description;
         document.getElementById('modalTaskUsername').innerText = username;
-        document.getElementById('modalTaskProject_id').innerText = project_id;
+        document.getElementById('modalTaskProject_id').innerText = project_name;
     }
 </script>
 

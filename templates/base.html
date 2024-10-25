@@ -27,18 +27,22 @@
                 </li>
             </ul>
             <ul class="navbar-nav">
+                {% if session.role == 'admin' %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('backlog') }}">Backlog</a>
                 </li>
+                {% endif %}
             </ul>
             <!-- profile icon  -->
             <ul class="navbar-nav ml-auto align-items-center"></ul>
-                <img src="{{ session.get('image') }}" class="rounded-circle profile" width="40" height="40" style="margin-right: 10px;" onclick="toggleMenu ()">
+            <img src="{{ session.get('image') }}" class="rounded-circle profile" width="40" height="40"
+                style="margin-right: 10px;" onclick="toggleMenu ()">
             </ul>
-            <div class="sub-menu-wrap"id="subMenu">
+            <div class="sub-menu-wrap" id="subMenu">
                 <div class="sub-menu">
                     <div class="user-info">
-                        <img src="{{ session.get('image') }}"class="rounded-circle profile" width="40" height="40" style="margin-right: 10px;" >
+                        <img src="{{ session.get('image') }}" class="rounded-circle profile" width="40" height="40"
+                            style="margin-right: 10px;">
                         <h2>{{session.username}}</h2>
                     </div>
                     <hr>
@@ -65,7 +69,7 @@
                 </div>
             </div>
 
-            
+
         </div>
     </nav>
 
@@ -93,7 +97,7 @@
     <script>
         let subMenu = document.getElementById("subMenu");
 
-        function toggleMenu(){
+        function toggleMenu() {
             subMenu.classList.toggle("open-menu");
         }
     </script>
